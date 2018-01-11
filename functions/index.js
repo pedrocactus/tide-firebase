@@ -14,10 +14,14 @@ admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	databaseURL: "https://tide-176bc.firebaseio.com"
 });
+
+var db = admin.database();
+var ref = db.ref("days");
+
 // a. the action name from the make_name Dialogflow intent
 const NAME_ACTION = 'make_coeff';
 // b. the parameters that are parsed from the make_name intent
-const DATE_ARGUMENT = 'date-period';
+const DATE_ARGUMENT = 'date-time';
 const CITY_ARGUMENT = 'geo-city-fr';
 
 exports.sillyNameMaker = functions.https.onRequest((request, response) => {
@@ -31,9 +35,27 @@ exports.sillyNameMaker = functions.https.onRequest((request, response) => {
 
 	// c. The function that generates the silly name
 	function makeName(app) {
-		let number = app.getArgument(DATE_ARGUMENT);
+		let date = app.getArgument(DATE_ARGUMENT);
 		let city = app.getArgument(CITY_ARGUMENT);
-		app.tell('Le coefficient de marée pour ' + city + ' est de 65');
+		console.log(date);
+		console.log(city);
+		ref.orderByChild("date").equalTo("28/01/2018").once("value", function(snapshot) {
+
+			snapshot.forEach(function(childSnapshot) {
+			console.log("titi");
+	 console.log(childSnapshot.key);
+	  console.log(childSnapshot.val().coeff);
+		app.tell('Le coefficient de marée pour ' + city + ' est de '+childSnapshot.val().coeff);
+		console.log("titi");
+	 // ...
+ });
+		  // console.log(snapshot.val());
+			//   console.log(snapshot.key());
+			// console.log("titi");
+			// console.log(snapshot.val().val().coeff);
+			// console.log("tto");
+			// app.tell('Le coefficient de marée pour ' + city + ' est de '+snapshot.val().coeff);
+		});
 	}
 	// d. build an action map, which maps intent names to functions
 	let actionMap = new Map();
