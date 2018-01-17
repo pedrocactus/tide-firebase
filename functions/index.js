@@ -16,7 +16,6 @@ admin.initializeApp({
 });
 
 var db = admin.database();
-var ref = db.ref("days");
 
 // a. the action name from the make_name Dialogflow intent
 const NAME_ACTION = 'make_coeff';
@@ -39,13 +38,30 @@ exports.sillyNameMaker = functions.https.onRequest((request, response) => {
 		let city = app.getArgument(CITY_ARGUMENT);
 		console.log(date);
 		console.log(city);
-		ref.orderByChild("date").equalTo("28/01/2018").once("value", function(snapshot) {
+		var ref = db.ref("ports/"+city+"/days");
+		db.ref("ports/").remove();
+		var refPorts = db.ref("ports/");
+		refPorts.on("value", function(snapshot) {
+			console.log(snapshot.val());
+			console.log(snapshot.key);
+
+		});
+
+
+		var newDate = date.replace(/-/g ,"");
+		console.log(newDate);
+		ref.orderByChild("day").equalTo(newDate).once("value", function(snapshot) {
 
 			snapshot.forEach(function(childSnapshot) {
 			console.log("titi");
-	 console.log(childSnapshot.key);
+	 	console.log(childSnapshot.key);
 	  console.log(childSnapshot.val().coeff);
-		app.tell('Le coefficient de marée pour ' + city + ' est de '+childSnapshot.val().coeff);
+		var coeffs = childSnapshot.val().coeff
+		if ( coeffs.length == 1){
+			app.tell('Le coefficient de marée pour '+city +' sera de '+coeffs[0]);
+		} else {
+			app.tell('Le coefficient de marée pour '+ city+' sera de '+coeffs[0]+' en première partie de journée, puis de '+coeffs[1]+' par la suite');
+		}
 		console.log("titi");
 	 // ...
  });
