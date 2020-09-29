@@ -4,16 +4,16 @@ import re
 import datetime
 from datetime import date
 
-start_date = date(2018,1,1)
-end_date = date(2018,12,31)
+start_date = date(2019,9,13)
+end_date = date(2019,9,14)
 delta = datetime.timedelta(days=1)
 
 html = urlopen("http://maree.info")
-#print(html)
 soup = BeautifulSoup(html)
+print(soup)
 regex = re.compile('.*Port.*')
 
-file = open("info.json","w")
+file = open("info2.json","w")
 
 file.write("{\n'ports' :[\n")
 
